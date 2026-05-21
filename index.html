@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code & Cursor — Maker Pro 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAFA;--accent:#E8590C;--accent-l:#FF8A4C;--accent-pale:#FFF4EE;
+  --surface:#FFFFFF;--text:#1A1A1A;--dim:#6B7280;--border:#E5E7EB;
+  --warn:#DC2626;--ok:#16A34A;
+  --grad-w:linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 30%,#FED7AA 60%,#FDBA74 100%);
+  --grad-a:linear-gradient(135deg,#E8590C 0%,#F97316 50%,#FB923C 100%);
+  --grad-h:linear-gradient(135deg,#1A1A1A 0%,#292524 40%,#44403C 70%,#57534E 100%);
+  --sans:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",monospace;
+  --xl:clamp(36px,5vw,80px);--lg:clamp(28px,2.8vw,48px);--md:clamp(22px,2vw,34px);
+  --body:clamp(16px,1.4vw,24px);--cap:clamp(14px,1.2vw,20px);--lbl:clamp(10px,0.6vw,12px);
+  --xs:clamp(2px,0.3vw,6px);--sm:clamp(4px,0.5vw,10px);--md-s:clamp(10px,1.2vw,20px);
+  --lg-s:clamp(14px,1.8vw,28px);--xl-s:clamp(20px,2.5vw,40px);
+  --mx:clamp(32px,4vw,100px);--mt:clamp(24px,3vh,60px);--mb:clamp(16px,1.5vh,28px);
+  --ease:cubic-bezier(.25,.1,.25,1);--spring:cubic-bezier(.34,1.56,.64,1);
+  --sh:0 1px 3px rgba(0,0,0,.04),0 0 0 1px rgba(0,0,0,.02);
+  --min-sec:14px;
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+.deck{width:100%;height:100%;position:relative}
+.s{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden;opacity:0;transition:opacity .4s var(--ease);background:var(--bg)}
+.s.on{display:flex;opacity:1}
+.s-dark{background:var(--grad-h);color:#fff}
+.s-dark .dim{color:rgba(255,255,255,.4)}
+.s-dark .tag{color:var(--accent-l)}
+.s-dark .meta{border-bottom-color:rgba(255,255,255,.08);color:rgba(255,255,255,.3)}
+.s-dark .foot{color:rgba(255,255,255,.2);border-top-color:rgba(255,255,255,.06)}
+.s-dark .foot .sp{background:rgba(255,255,255,.04)}
+.s-dark .cm-k::before,.s-dark .cm-k::after{background:rgba(255,255,255,.5)}
+.s-grad{background:var(--grad-w)}
+
+.cms{position:absolute;inset:0;pointer-events:none;z-index:2}
+.cm-k{position:absolute;width:14px;height:14px;opacity:.08}
+.cm-k::before,.cm-k::after{content:'';position:absolute;background:var(--text)}
+.cm-k::before{left:0;top:50%;width:100%;height:1px}.cm-k::after{top:0;left:50%;width:1px;height:100%}
+.c1{top:20px;left:20px}.c2{top:20px;right:20px}.c3{bottom:20px;left:20px}.c4{bottom:20px;right:20px}
+
+.wm{position:absolute;pointer-events:none;user-select:none;font-size:min(8vw,7rem);font-weight:900;line-height:.8;color:var(--accent);opacity:.03}
+
+.meta{display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 var(--mx);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:var(--min-sec);letter-spacing:.25em;text-transform:uppercase;color:var(--dim);opacity:.6}
+
+.foot{position:absolute;bottom:12px;z-index:5;left:var(--mx);right:var(--mx);display:flex;align-items:center;gap:16px;padding-top:10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:var(--min-sec);letter-spacing:.15em;text-transform:uppercase;color:var(--dim);opacity:.3}
+.foot .sp{flex:1;height:1px;background:var(--border);opacity:.3}
+
+.tag{font-family:var(--mono);font-size:var(--lbl);letter-spacing:.25em;text-transform:uppercase;color:var(--accent)}
+.aline{width:56px;height:2px;background:var(--grad-a);border-radius:2px}
+
+.txl{font-size:var(--xl);font-weight:900;line-height:.88;letter-spacing:-.04em}
+.tlg{font-size:var(--lg);font-weight:800;line-height:.95;letter-spacing:-.03em}
+.tmd{font-size:var(--md);font-weight:700;line-height:1.05;letter-spacing:-.02em}
+.tbd{font-size:var(--body);font-weight:400;line-height:1.5;color:var(--dim)}
+.tcp{font-size:var(--cap);font-weight:400;line-height:1.5;color:var(--dim)}
+.tlb{font-family:var(--mono);font-size:var(--lbl);font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+.mono{font-family:var(--mono)}.acc{color:var(--accent)}.dim{color:var(--dim)}.dk{color:var(--text)}
+.bld{font-weight:700}.blk{font-weight:900}
+.tg{background:var(--grad-a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hi{background:var(--grad-a);color:#fff;padding:.02em .2em;border-radius:4px}
+
+.ca{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:0 var(--mx);overflow:hidden;gap:var(--md-s)}
+.cc{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 var(--mx)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:clamp(10px,1.5vh,20px) clamp(14px,1.5vw,24px);box-shadow:var(--sh)}
+.card-w{background:var(--accent-pale);border-color:rgba(232,89,12,.08)}
+.card-al{border-left:3px solid var(--accent)}
+
+.term{background:#1C1917;color:#D6D3D1;border-radius:12px;padding:clamp(10px,1.2vh,18px) clamp(14px,1.5vw,24px);font-family:var(--mono);font-size:clamp(11px,0.9vw,16px);line-height:1.7;box-shadow:0 8px 30px rgba(0,0,0,.08)}
+.td{display:flex;gap:7px;margin-bottom:var(--md-s);padding-bottom:var(--sm);border-bottom:1px solid rgba(255,255,255,.06)}
+.td span{width:10px;height:10px;border-radius:50%}
+.dr{background:#EF4444}.dy{background:#EAB308}.dg{background:#22C55E}
+.cm{color:rgba(255,255,255,.3)}.pr{color:#4ADE80}.st{color:#FB923C}.kw{color:#F472B6}
+
+.ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ico-o{background:var(--accent-pale);color:var(--accent)}
+.ico-d{background:#F3F4F6;color:var(--text)}
+
+.kpi{text-align:center}
+.kpi-v{font-size:clamp(2rem,3vw,3.5rem);font-weight:900;letter-spacing:-.03em;line-height:1}
+.kpi-l{font-size:var(--cap);color:var(--dim);margin-top:var(--sm);line-height:1.3}
+
+.tbl{width:100%;border-collapse:collapse;margin-top:var(--sm)}
+.tbl th{text-align:left;padding:12px 20px;font-family:var(--mono);font-size:var(--lbl);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);border-bottom:2px solid var(--border)}
+.tbl td{padding:14px 20px;font-size:var(--cap);color:var(--dim);border-bottom:1px solid #F3F4F6}
+.tbl td:first-child{color:var(--text);font-weight:600}
+.tbl tr:last-child td{border-bottom:none}
+
+.sr{display:flex;align-items:flex-start;gap:var(--md-s)}
+.sn{font-size:clamp(1rem,1.4vw,1.3rem);font-weight:300;color:var(--accent);min-width:32px;opacity:.6}
+.st-h3{font-size:var(--cap);font-weight:600;color:var(--text);margin-bottom:1px}
+.st-p{font-size:clamp(14px,.8vw,16px);color:var(--dim)}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vh,20px);width:100%}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(8px,1vh,16px);width:100%}
+.fc{display:flex;flex-direction:column}.fr{display:flex;align-items:center}
+.gxs{gap:var(--xs)}.gsm{gap:var(--sm)}.gmd{gap:var(--md-s)}.glg{gap:var(--lg-s)}.gxl{gap:var(--xl-s)}
+
+@keyframes fu{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+@keyframes si{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes gw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes gh{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.s.on .aFU{animation:fu .5s var(--ease) forwards;opacity:0}
+.s.on .aFI{animation:fi .4s var(--ease) forwards;opacity:0}
+.s.on .aSI{animation:si .45s var(--spring) forwards;opacity:0}
+.s.on .aGW{animation:gw .7s var(--ease) forwards;transform-origin:left;transform:scaleX(0)}
+.s.on .aGH{animation:gh .6s var(--ease) forwards;transform-origin:top;transform:scaleY(0)}
+.d0{animation-delay:0s!important}.d1{animation-delay:.1s!important}.d2{animation-delay:.2s!important}
+.d3{animation-delay:.3s!important}.d4{animation-delay:.4s!important}.d5{animation-delay:.5s!important}
+.d6{animation-delay:.6s!important}.d7{animation-delay:.7s!important}.d8{animation-delay:.8s!important}
+
+.pb{position:fixed;top:0;left:0;right:0;height:3px;background:#F3F4F6;z-index:50}
+.pf{height:100%;background:var(--grad-a);transition:width .4s var(--ease)}
+.ct{position:fixed;bottom:24px;right:32px;z-index:50;font-family:var(--mono);font-size:var(--min-sec);letter-spacing:.08em;color:var(--dim);opacity:.3}
+
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);opacity:.12}
+.orb-o{background:var(--accent-l)}.orb-p{background:#FDBA74}
+.qb{border-left:3px solid var(--accent);padding-left:var(--lg-s)}
+
+.note{background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;padding:8px 14px;font-size:var(--min-sec);color:#92400E;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="deck" id="D">
+
+<!-- ═══ 01 TITLE ═══ -->
+<div class="s s-dark on" data-sec="">
+  <div class="cms"><div class="cm-k c1"></div><div class="cm-k c2"></div><div class="cm-k c3"></div><div class="cm-k c4"></div></div>
+  <div class="wm aFI d2" style="right:60px;top:40px;color:#fff;opacity:.03">01</div>
+  <div class="meta"><span>PLAYMIX</span><span style="color:var(--accent-l)">Maker Pro 2.0</span><span>Maio 2026</span></div>
+  <div class="ca">
+    <span class="tag aFU d1" style="color:var(--accent-l)">[01] — Masterclass ao vivo</span>
+    <h1 class="txl blk aFU d3" style="margin-top:var(--lg-s);color:#fff">CLAUDE CODE<br><span style="font-weight:300;opacity:.4">&</span> CURSOR</h1>
+    <p class="aFU d5" style="margin-top:var(--md-s);font-size:var(--body);color:rgba(255,255,255,.5);max-width:550px">Entenda, instale e construa seu primeiro site com IA — ao vivo.</p>
+    <div class="fr gmd aFU d6" style="margin-top:var(--sm)">
+      <div class="aline aGW d7" style="background:var(--accent-l)"></div>
+      <span class="tlb" style="color:rgba(255,255,255,.3)">PLAYMIX // Maker Pro 2.0</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02 AGENDA ═══ -->
+<div class="s" data-sec="Roteiro">
+  <div class="orb orb-p" style="width:500px;height:500px;top:-200px;right:-100px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">Roteiro da aula</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que vamos ver hoje</h2>
+    <div class="fc glg aFU d4" style="margin-top:var(--xl-s);max-width:750px">
+      <div class="card fr glg"><span class="tlb" style="opacity:.35;min-width:40px">01</span><div class="fc gxs"><p class="tmd bld">Contexto</p><p class="tcp">A família de IAs, Claude e o que você vai precisar</p></div></div>
+      <div class="card fr glg"><span class="tlb" style="opacity:.35;min-width:40px">02</span><div class="fc gxs"><p class="tmd bld">Claude Code</p><p class="tcp">O que é, como instalar e como usar</p></div></div>
+      <div class="card fr glg"><span class="tlb" style="opacity:.35;min-width:40px">03</span><div class="fc gxs"><p class="tmd bld">Cursor</p><p class="tcp">O editor com IA e como usar junto com o Claude Code</p></div></div>
+      <div class="card fr glg"><span class="tlb" style="opacity:.35;min-width:40px">04</span><div class="fc gxs"><p class="tmd bld">Prática</p><p class="tcp">Construir o site da PLAYMIX juntos</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Roteiro</span><span class="sp"></span><span>02</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 03 SECTION: CONTEXTO ═══ -->
+<div class="s s-grad" data-sec="Contexto">
+  <div class="wm aFI d2" style="right:8%;top:15%;opacity:.025">01</div>
+  <div class="cc">
+    <div class="aGH d1" style="width:2px;height:60px;background:var(--accent);opacity:.3;border-radius:2px"></div>
+    <span class="tlb aFI d3" style="margin:var(--lg-s) 0;letter-spacing:.5em;color:var(--accent)">Parte 01</span>
+    <h2 class="txl blk aSI d4" style="color:var(--text)">CONTEXTO</h2>
+  </div>
+</div>
+
+<!-- ═══ 04 A FAMILIA DE IAs ═══ -->
+<div class="s" data-sec="Contexto">
+  <div class="orb orb-o" style="width:400px;height:400px;top:20%;right:5%"></div>
+  <div class="ca">
+    <span class="tag aFU d1">Alinhamento rápido</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que é uma <span class="tg">LLM</span></h2>
+    <p class="tbd aFU d3" style="margin-top:var(--sm);max-width:650px">LLM é o cérebro. ChatGPT, Gemini, Claude — são todos LLMs. Modelos de IA que conversam, entendem e criam.</p>
+    <div class="g3 aFU d5" style="margin-top:var(--sm)">
+      <div class="card fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 2"/></svg></div>
+        <h3 class="tmd bld" style="font-size:var(--cap)">Claude</h3>
+        <p class="tcp">Anthropic<br>O que usamos hoje</p>
+      </div>
+      <div class="card fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-d"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="3"/><path d="M7 10h6M10 7v6"/></svg></div>
+        <h3 class="tmd bld" style="font-size:var(--cap)">GPT</h3>
+        <p class="tcp">OpenAI<br>ChatGPT, o mais conhecido</p>
+      </div>
+      <div class="card fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-d"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3 class="tmd bld" style="font-size:var(--cap)">Gemini</h3>
+        <p class="tcp">Google<br>Integrado ao Google</p>
+      </div>
+    </div>
+    <div class="card-w aFU d6" style="margin-top:var(--lg-s);padding:var(--md-s) var(--lg-s);border-radius:12px;max-width:600px">
+      <p class="tcp" style="text-align:center;color:var(--accent)">São todos LLMs. Concorrentes entre si. Claude é o que vamos usar.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Contexto</span><span class="sp"></span><span>04</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 05 CLAUDE: 3 PRODUTOS ═══ -->
+<div class="s" data-sec="Contexto">
+  <div class="ca">
+    <span class="tag aFU d1">A Anthropic tem 3 produtos principais</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Claude, Cowork e <span class="tg">Code</span></h2>
+    <div class="g3 aFU d4" style="margin-top:var(--sm)">
+      <div class="card fc gmd">
+        <h3 class="tmd bld">Claude</h3>
+        <p class="tlb" style="opacity:.4">claude.ai</p>
+        <p class="tcp" style="margin-top:var(--sm)">O chat. Conversa, textos, análise de documentos. Como o ChatGPT, mas da Anthropic.</p>
+      </div>
+      <div class="card fc gmd">
+        <h3 class="tmd bld">Cowork</h3>
+        <p class="tlb" style="opacity:.4">Para times</p>
+        <p class="tcp" style="margin-top:var(--sm)">Colaboração com IA para equipes. Projetos, orçamentos, organização — útil no dia a dia.</p>
+      </div>
+      <div class="card card-al fc gmd">
+        <h3 class="tmd bld acc">Code</h3>
+        <p class="tlb" style="opacity:.4">O foco da aula</p>
+        <p class="tcp" style="margin-top:var(--sm)">Assistente de IA que cria software. Lê seus arquivos, escreve código, roda comandos e entrega funcionando.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Contexto</span><span class="sp"></span><span>05</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 06 STATEMENT ═══ -->
+<div class="s" data-sec="Contexto">
+  <div class="cc">
+    <h1 class="txl blk aSI d2" style="max-width:85%">VOCÊ DESCREVE.<br>A IA <span class="hi">CONSTRÓI.</span></h1>
+    <p class="tbd aFU d5" style="margin-top:var(--lg-s);max-width:480px">Não precisa saber programar.<br>Precisa saber pedir.</p>
+  </div>
+</div>
+
+<!-- ═══ 07 O QUE VOCE VAI PRECISAR ═══ -->
+<div class="s" data-sec="Contexto">
+  <div class="orb orb-p" style="width:400px;height:400px;top:-100px;left:-100px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">Antes de começar</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que você vai precisar</h2>
+    <div class="fc glg aFU d4" style="margin-top:var(--xl-s);max-width:700px">
+      <div class="sr"><span class="sn">01</span><div><p class="st-h3">Mac (de 2017 em diante) ou Windows 10/11</p><p class="st-p">Qualquer computador relativamente recente serve</p></div></div>
+      <div class="sr"><span class="sn">02</span><div><p class="st-h3">Internet</p><p class="st-p">O Claude Code funciona online — precisa estar conectado</p></div></div>
+      <div class="sr"><span class="sn">03</span><div><p class="st-h3">Conta Claude Pro — $20/mês (aprox. R$110)</p><p class="st-p">Inclui o Claude Code + Cowork. O plano gratuito NÃO inclui o Code.<br><strong class="dk mono" style="font-size:14px">claude.ai</strong> — crie sua conta ali</p></div></div>
+      <div class="sr"><span class="sn">04</span><div><p class="st-h3">Node.js (gratuito) — necessário para a prática</p><p class="st-p">É o motor que roda projetos web no seu computador. Instale em:<br><strong class="dk mono" style="font-size:14px">nodejs.org</strong> — baixe a versão LTS e instale normalmente</p></div></div>
+      <div class="sr"><span class="sn">05</span><div><p class="st-h3">Cursor (gratuito)</p><p class="st-p">O editor visual com IA. Plano Hobby = grátis. Pro = $20/mês.<br><strong class="dk mono" style="font-size:14px">cursor.com</strong> — baixe aqui</p></div></div>
+    </div>
+    <div class="card-w aFU d7" style="margin-top:var(--lg-s);padding:var(--sm) var(--lg-s);border-radius:12px;max-width:650px">
+      <p class="tcp" style="text-align:center;color:var(--accent)">Vamos fazer tudo juntos na aula. Pode só acompanhar agora e instalar depois.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Contexto</span><span class="sp"></span><span>07</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 08 SECTION: CLAUDE CODE ═══ -->
+<div class="s s-grad" data-sec="Claude Code">
+  <div class="wm aFI d2" style="right:8%;top:15%;opacity:.025">02</div>
+  <div class="cc">
+    <div class="aGH d1" style="width:2px;height:60px;background:var(--accent);opacity:.3;border-radius:2px"></div>
+    <span class="tlb aFI d3" style="margin:var(--lg-s) 0;letter-spacing:.5em;color:var(--accent)">Parte 02</span>
+    <h2 class="txl blk aSI d4" style="color:var(--text)">CLAUDE CODE</h2>
+  </div>
+</div>
+
+<!-- ═══ 09 O QUE E UM TERMINAL ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca" style="flex-direction:row;align-items:center;gap:var(--lg-s)">
+    <div class="fc gmd" style="flex:1;min-width:0">
+    <span class="tag aFU d1">Antes de tudo</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">O que é um <span class="tg">terminal</span></h2>
+    <p class="tbd aFU d3" style="margin-top:var(--sm);max-width:450px">É a tela preta onde você digita comandos para o computador. Todo Mac e Windows já tem um.</p>
+    <div class="fc gsm aFU d5" style="margin-top:var(--md-s)">
+      <p class="tcp"><strong class="dk">No Mac:</strong> Cmd + Espaço → digite "Terminal" → Enter</p>
+      <p class="tcp"><strong class="dk">No Windows:</strong> Tecla Windows → digite "PowerShell" → Enter</p>
+    </div>
+    </div>
+    <div class="aFU d6" style="flex:1;min-width:0;max-width:45%">
+      <div class="term" style="font-size:clamp(12px,.9vw,15px);line-height:1.8">
+        <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+        <span class="cm">~ marcelogiglio</span><br>
+        <span class="pr">$</span> <span style="color:#fff;opacity:.6">_</span><br><br>
+        <span style="color:rgba(255,255,255,.2)">É isso. Essa tela preta<br>com o $ esperando seu<br>comando é o terminal.</span>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>09</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 10 O QUE E CLAUDE CODE ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca" style="flex-direction:row;align-items:center;gap:var(--lg-s)">
+    <div class="fc gmd" style="flex:1;min-width:0">
+      <span class="tag aFU d1">O que é</span>
+      <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)"><span class="tg">Claude Code</span></h2>
+      <p class="tbd aFU d3" style="margin-top:var(--sm);max-width:500px">Um assistente de IA que roda no seu terminal. Você descreve o que quer em português e ele cria o projeto inteiro.</p>
+      <div class="fc gsm aFU d4" style="margin-top:var(--md-s)">
+        <p class="tcp"><strong class="dk">Conversa natural</strong> — "Crie um site de portfólio dark"</p>
+        <p class="tcp"><strong class="dk">Autônomo</strong> — planeja, escreve, testa e corrige sozinho</p>
+      </div>
+    </div>
+    <div class="aFU d5" style="flex:1;min-width:0;max-width:50%">
+      <img src="img/claude-code-in-terminal.png" alt="Claude Code rodando no terminal" style="width:100%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.1)">
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>10</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 11 COMO INSTALAR ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">Instalação</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Como instalar o Claude Code</h2>
+    <div class="note aFU d3" style="margin-top:var(--sm);max-width:720px">Copie a linha inteira abaixo e cole no terminal. Aperte Enter.<br>O <strong>$</strong> indica onde digitar — não digite o $. Para colar: Mac = Cmd+V, Windows = Ctrl+V ou clique direito.</div>
+    <div class="term aFU d4" style="margin-top:var(--md-s);max-width:720px">
+      <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+      <span class="cm"># No Mac (abra o Terminal)</span><br>
+      <span class="pr">$</span> curl -fsSL https://claude.ai/install.sh | bash<br><br>
+      <span class="cm"># No Windows (abra o PowerShell)</span><br>
+      <span class="pr">$</span> irm https://claude.ai/install.ps1 | iex
+    </div>
+    <p class="tcp aFU d6" style="margin-top:var(--md-s);max-width:650px">Vai aparecer texto rodando na tela. É normal. Espere até pedir login.<br>Precisa de conta <strong class="dk">Claude Pro ($20/mês)</strong>. O plano gratuito não inclui o Code.</p>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>11</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 12 O QUE ACONTECE APOS INSTALAR ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">Após instalar</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que acontece depois</h2>
+    <div class="fc glg aFU d4" style="margin-top:var(--xl-s);max-width:700px">
+      <div class="sr"><span class="sn">01</span><div><p class="st-h3">Abre o navegador para login</p><p class="st-p">Você faz login com sua conta Claude Pro. Só precisa fazer isso uma vez.</p></div></div>
+      <div class="sr"><span class="sn">02</span><div><p class="st-h3">Volta pro terminal automaticamente</p><p class="st-p">Aparece um cursor piscando esperando seu pedido (= o "prompt").</p></div></div>
+      <div class="sr"><span class="sn">03</span><div><p class="st-h3">Pronto para usar</p><p class="st-p">Não precisa instalar mais nada. O instalador cuida de tudo.</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>12</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 13 PRIMEIRO USO ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="cc" style="gap:var(--lg-s)">
+    <span class="tag aFU d1">Primeiro uso</span>
+    <h2 class="tlg blk aFU d2">Criando sua primeira pasta e rodando</h2>
+    <div class="term aFU d4" style="max-width:700px;text-align:left">
+      <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+      <span class="cm"># 1. Crie uma pasta (mkdir = criar pasta)</span><br>
+      <span class="pr">$</span> <span class="kw">mkdir</span> playmix<br><br>
+      <span class="cm"># 2. Entre na pasta (cd = entrar na pasta)</span><br>
+      <span class="pr">$</span> <span class="kw">cd</span> playmix<br><br>
+      <span class="cm"># 3. Rode o Claude Code</span><br>
+      <span class="pr">$</span> claude<br><br>
+      <span class="cm"># 4. Converse — ele vai criar o projeto Next.js inteiro:</span><br>
+      <span class="st">"Crie um site com Next.js para a PLAYMIX,</span><br>
+      <span class="st"> uma produtora audiovisual. Dark, premium, responsivo."</span>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>13</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 14 COMANDOS PRINCIPAIS ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">Referência</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Comandos que você vai usar</h2>
+    <table class="tbl aFU d4" style="margin-top:var(--sm)">
+      <thead><tr><th>O que fazer</th><th>Como</th></tr></thead>
+      <tbody>
+        <tr><td>Iniciar</td><td><code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">claude</code></td></tr>
+        <tr><td>Continuar conversa anterior</td><td><code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">claude -c</code></td></tr>
+        <tr><td>Tarefa rápida sem entrar no chat</td><td><code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">claude "corrija o bug do menu"</code></td></tr>
+        <tr><td>Ver ajuda</td><td><code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">/help</code></td></tr>
+        <tr><td>Sair</td><td><code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">exit</code> ou <code class="mono" style="background:#F3F4F6;padding:3px 10px;border-radius:6px">Ctrl+D</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>14</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 15 O QUE ELE CONSEGUE FAZER ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">Capacidades — para videomakers</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que o Claude Code faz por você</h2>
+    <div class="g3 aFU d4" style="margin-top:var(--sm)">
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Criar site portfólio</p>
+        <p class="tcp">"Crie um site para minha produtora"</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Montar página de orçamento</p>
+        <p class="tcp">"Adicione um formulário de contato"</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Publicar online</p>
+        <p class="tcp">"Coloque esse site no ar"</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Adicionar formulário de contato</p>
+        <p class="tcp">"Quero que o cliente preencha nome, email e tipo de serviço"</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Melhorar o que já existe</p>
+        <p class="tcp">"O site tá lento, melhore a performance"</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Corrigir problemas</p>
+        <p class="tcp">"O menu não abre no celular, corrija"</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>15</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 16 SECTION: CURSOR ═══ -->
+<div class="s s-grad" data-sec="Cursor">
+  <div class="wm aFI d2" style="right:8%;top:15%;opacity:.025">03</div>
+  <div class="cc">
+    <div class="aGH d1" style="width:2px;height:60px;background:var(--accent);opacity:.3;border-radius:2px"></div>
+    <span class="tlb aFI d3" style="margin:var(--lg-s) 0;letter-spacing:.5em;color:var(--accent)">Parte 03</span>
+    <h2 class="txl blk aSI d4" style="color:var(--text)">CURSOR</h2>
+  </div>
+</div>
+
+<!-- ═══ 17 O QUE E CURSOR ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="ca" style="flex-direction:row;align-items:center;gap:var(--lg-s)">
+    <div class="fc gmd" style="flex:1;min-width:0">
+      <span class="tag aFU d1">O editor</span>
+      <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">O que é o Cursor</h2>
+      <p class="tbd aFU d3" style="margin-top:var(--sm);max-width:450px">Um editor de código com IA de fábrica. Você vê os arquivos, edita visualmente e a IA ajuda em tempo real.</p>
+      <div class="fc gsm aFU d4" style="margin-top:var(--md-s)">
+        <p class="tcp"><strong class="dk">Tab</strong> — autocomplete inteligente</p>
+        <p class="tcp"><strong class="dk">Cmd+K</strong> — edição pontual ("mude a cor")</p>
+        <p class="tcp"><strong class="dk acc">Modo autônomo</strong> — cria partes inteiras sozinho</p>
+      </div>
+    </div>
+    <div class="aFU d5" style="flex:1;min-width:0;max-width:50%">
+      <img src="img/cursor-hero.png" alt="Interface do Cursor" style="width:100%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.1)">
+    </div>
+  </div>
+  <div class="foot"><span>Cursor</span><span class="sp"></span><span>17</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 18 COMO INSTALAR CURSOR ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="ca">
+    <span class="tag aFU d1">Instalação rápida</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Instalando o Cursor</h2>
+    <div class="fc glg aFU d4" style="margin-top:var(--xl-s);max-width:700px">
+      <div class="sr"><span class="sn">01</span><div><p class="st-h3">cursor.com — clique Download</p><p class="st-p">Funciona no Mac e no Windows</p></div></div>
+      <div class="sr"><span class="sn">02</span><div><p class="st-h3">Instale e abra</p><p class="st-p">Igual instalar qualquer app</p></div></div>
+      <div class="sr"><span class="sn">03</span><div><p class="st-h3">Crie conta (Google ou email)</p><p class="st-p">Plano Hobby = gratuito. Pro = $20/mês</p></div></div>
+      <div class="sr"><span class="sn">04</span><div><p class="st-h3">Abra uma pasta de projeto</p><p class="st-p">Cmd+L abre o chat com IA</p></div></div>
+    </div>
+  </div>
+  <div class="foot"><span>Cursor</span><span class="sp"></span><span>18</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 19 CLAUDE CODE + CURSOR JUNTOS ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="orb orb-o" style="width:400px;height:400px;bottom:-100px;left:-100px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">A dupla perfeita</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Claude Code + Cursor — <span class="tg">como funcionam juntos</span></h2>
+    <div class="g3 aFU d4" style="margin-top:var(--sm)">
+      <div class="card fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M6 9l3 3-3 3"/><path d="M12 15h6"/></svg></div>
+        <h3 class="tmd bld" style="font-size:var(--cap)">Claude Code</h3>
+        <p class="tcp">Você conversa e a IA cria tudo do zero. Funciona no terminal.</p>
+      </div>
+      <div class="card fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-d"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M3 9h14"/><path d="M9 3v14"/></svg></div>
+        <h3 class="tmd bld" style="font-size:var(--cap)">Cursor</h3>
+        <p class="tcp">Você vê os arquivos e edita visualmente. É o editor de código.</p>
+      </div>
+      <div class="card card-al fc gmd" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3 class="tmd bld acc" style="font-size:var(--cap)">Juntos</h3>
+        <p class="tcp">Claude Code cria, Cursor ajusta. Pode usar o Code sozinho no terminal OU dentro do Cursor.</p>
+      </div>
+    </div>
+    <div class="card-w aFU d6" style="margin-top:var(--lg-s);padding:var(--md-s) var(--lg-s);border-radius:12px;max-width:650px">
+      <p class="tcp" style="text-align:center;color:var(--accent)">O Claude Code funciona dentro do Cursor como plugin (= extensão que você instala dentro do editor). Melhor dos dois mundos.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Cursor</span><span class="sp"></span><span>19</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 20 AIOX AGENTS ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="orb orb-o" style="width:400px;height:400px;bottom:-150px;right:-100px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">Vamos usar na prática</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">Agentes <span class="tg">AIOX</span></h2>
+    <p class="tbd aFU d3" style="margin-top:var(--xs);max-width:650px">Agentes são assistentes de IA especializados. Em vez de um genérico, você tem um time — cada um cuida de uma parte do projeto.</p>
+    <div class="g3 aFU d4" style="margin-top:var(--md-s)">
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-o"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="16" height="12" rx="2"/><path d="M6 9l3 3-3 3"/><path d="M12 15h4"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@dev</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Escreve código</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-d"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@architect</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Planeja a estrutura</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-d"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@qa</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Testa qualidade</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-o"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@pm</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Gerencia o projeto</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-d"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/><path d="M17 17l5 5"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@analyst</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Pesquisa e analisa</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s);text-align:center;align-items:center">
+        <div class="ico ico-o"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <p class="bld dk" style="font-size:var(--cap)">@devops</p>
+        <p class="tcp" style="font-size:clamp(11px,.8vw,13px)">Publica e configura</p>
+      </div>
+    </div>
+    <div class="card-w aFU d6" style="margin-top:var(--sm);padding:var(--xs) var(--md-s);border-radius:10px;max-width:600px">
+      <p class="tcp" style="text-align:center;color:var(--accent);font-size:clamp(12px,.9vw,15px)">Na prática de hoje, vamos usar esses agentes para construir o site da PLAYMIX.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Cursor</span><span class="sp"></span><span>20</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 21 SKILLS vs AGENTES vs SQUADS ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="ca">
+    <span class="tag aFU d1">4 coisas rápidas pra todo mundo ficar na mesma página</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">LLM · Skill · Agente · Squad</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(8px,1vh,16px);width:100%;margin-top:var(--md-s)" class="aFU d4">
+      <div class="card fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld" style="font-size:var(--cap)">LLM</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)">É o <strong class="dk">cérebro</strong>. ChatGPT, Gemini, Claude — são todos LLMs. Modelos que conversam.</p>
+      </div>
+      <div class="card fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld" style="font-size:var(--cap)">Skill</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)">Uma <strong class="dk">habilidade específica</strong> que você ensina pra esse cérebro. Tipo dar um manual.</p>
+      </div>
+      <div class="card fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld" style="font-size:var(--cap)">Agente</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)">Quando o cérebro <strong class="dk">ganha mãos</strong>. Não só conversa — executa. Cria arquivos, roda código, faz coisas sozinho.</p>
+      </div>
+      <div class="card card-al fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld acc" style="font-size:var(--cap)">Squad</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)">Quando você <strong class="dk">junta vários agentes</strong> trabalhando juntos. Um time de IAs especializadas.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>AIOX</span><span class="sp"></span><span>21</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 22 TECNOLOGIAS ═══ -->
+<div class="s" data-sec="Cursor">
+  <div class="orb orb-p" style="width:400px;height:400px;top:-100px;left:-100px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">O que existe pra construir</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">Tecnologias — <span class="tg">qual usar?</span></h2>
+    <p class="tbd aFU d3" style="margin-top:var(--xs);max-width:650px">Cada tecnologia serve pra um tipo de projeto. Você não precisa escolher — a IA escolhe pra você. Mas é bom saber o que existe.</p>
+    <div class="g2 aFU d4" style="margin-top:var(--md-s)">
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">HTML + CSS + JavaScript</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">O básico da web. Sites simples, páginas estáticas, portfólios. Abre direto no navegador.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ Site simples, landing page</p>
+      </div>
+      <div class="card card-al fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk acc" style="font-size:var(--cap)">Next.js (React)</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">O padrão profissional. Sites dinâmicos, apps web, e-commerce. O que vamos usar hoje.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ Site profissional, aplicativo web</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">React Native / Expo</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Aplicativos para celular (iOS e Android) usando a mesma linguagem da web.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ App para iPhone e Android</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Swift / Kotlin</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Apps nativos — Swift para iPhone, Kotlin para Android. Máxima performance.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ App nativo de alta performance</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Python</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Automações, scripts, inteligência artificial, análise de dados. Não é pra sites.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ Automação, IA, dados</p>
+      </div>
+      <div class="card fc gsm" style="padding:var(--sm) var(--md-s)">
+        <p class="bld dk" style="font-size:var(--cap)">Flutter</p>
+        <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Apps para celular, desktop e web com uma única base de código. Do Google.</p>
+        <p class="tlb" style="opacity:.4;margin-top:var(--xs)">→ App multiplataforma</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Tecnologias</span><span class="sp"></span><span>22</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 23 SQUADS SYNKRA AIOX ═══ -->
+<div class="s" data-sec="AIOX">
+  <div class="orb orb-p" style="width:500px;height:500px;bottom:-200px;right:-150px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">O ecossistema completo</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)"><span class="tg">16 Squads</span> · 146 Agentes</h2>
+    <p class="tbd aFU d3" style="margin-top:var(--xs);max-width:700px">Cada squad é um time de IA especializado num domínio. Você aciona o squad certo e ele cuida de tudo.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:clamp(6px,.8vh,12px);width:100%;margin-top:var(--md-s)" class="aFU d4">
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Advisory Board</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">11 conselheiros estratégicos</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Brand Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">15 experts em branding</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Copy Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">23 copywriters lendários</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Storytelling</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">12 mestres de narrativa</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Hormozi Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">16 agentes — ofertas e scaling</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Traffic Masters</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">16 especialistas em tráfego</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Cybersecurity</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">15 pentest e segurança</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Design Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">8 design systems e UX</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Data Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">7 analytics e growth</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">C-Level Squad</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">6 executivos virtuais</p>
+      </div>
+      <div class="card card-al fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld acc" style="font-size:clamp(11px,.9vw,14px)">Claude Code Mastery</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">8 experts em Claude Code</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Movement</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">7 construção de movimentos</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Content Distillery</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">9 destilação de conteúdo</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Kaizen</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">7 melhoria contínua</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Marketing Ops</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">12 operações de marketing</p>
+      </div>
+      <div class="card fc gxs" style="padding:clamp(6px,.8vh,12px) clamp(8px,1vw,14px)">
+        <p class="bld dk" style="font-size:clamp(11px,.9vw,14px)">Design (MD LLM)</p>
+        <p class="dim" style="font-size:clamp(10px,.7vw,12px)">10 design com IA</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>AIOX</span><span class="sp"></span><span>23</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 24 SECTION: PRÁTICA ═══ -->
+<div class="s s-grad" data-sec="Prática">
+  <div class="wm aFI d2" style="right:8%;top:15%;opacity:.025">04</div>
+  <div class="cc">
+    <div class="aGH d1" style="width:2px;height:60px;background:var(--accent);opacity:.3;border-radius:2px"></div>
+    <span class="tlb aFI d3" style="margin:var(--lg-s) 0;letter-spacing:.5em;color:var(--accent)">Parte 04</span>
+    <h2 class="txl blk aSI d4" style="color:var(--text)">PRÁTICA</h2>
+  </div>
+</div>
+
+<!-- ═══ 21 DÚVIDAS ATÉ AQUI? ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="cc">
+    <h1 class="txl blk aSI d2" style="max-width:85%">ALGUMA <span class="tg">DÚVIDA</span><br>ATÉ AQUI?</h1>
+    <p class="tbd aFU d5" style="margin-top:var(--lg-s);max-width:480px">Antes de começar a prática — pergunte qualquer coisa.</p>
+  </div>
+</div>
+
+<!-- ═══ 22 O PROJETO ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="orb orb-o" style="width:500px;height:500px;top:-200px;right:-150px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">O que vamos construir</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Site da <span class="hi">PLAYMIX</span></h2>
+    <p class="tbd aFU d3" style="margin-top:var(--sm)">Produtora audiovisual — portfólio profissional completo</p>
+    <div class="g3 aFU d5" style="margin-top:var(--sm)">
+      <div class="card fc gsm" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5,3 19,12 5,21"/></svg></div>
+        <p class="bld" style="font-size:var(--cap)">Portfólio</p><p class="tcp">Galeria de vídeos e imagens</p>
+      </div>
+      <div class="card fc gsm" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div>
+        <p class="bld" style="font-size:var(--cap)">Orçamento</p><p class="tcp">Formulário de contato</p>
+      </div>
+      <div class="card fc gsm" style="align-items:center;text-align:center">
+        <div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <p class="bld" style="font-size:var(--cap)">Serviços</p><p class="tcp">Filmagem, edição, drone</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Prática</span><span class="sp"></span><span>25</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 23 O PROMPT ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="cc" style="gap:var(--lg-s)">
+    <span class="tag aFU d1">Prompt = o pedido que você faz para a IA. Quanto mais detalhado, melhor.</span>
+    <h2 class="tlg blk aFU d2">O pedido que vamos usar</h2>
+    <div class="term aFU d4" style="max-width:780px;text-align:left;font-size:clamp(11px,0.8vw,14px);line-height:1.65">
+      <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+      <span class="st">"Crie um site profissional completo com Next.js para</span><br>
+      <span class="st">a PLAYMIX, uma produtora audiovisual especializada em</span><br>
+      <span class="st">filmes corporativos, eventos e conteúdo para redes sociais.</span><br><br>
+      <span class="st">Estrutura do site:</span><br>
+      <span class="st">1. Tela inicial cinematográfica com vídeo de fundo em loop</span><br>
+      <span class="st">2. Seção "Sobre nós" com história da produtora</span><br>
+      <span class="st">3. Portfólio com galeria de vídeos e fotos em grid</span><br>
+      <span class="st">4. Serviços: filmagem, edição, drone, fotografia,</span><br>
+      <span class="st">   motion graphics — cada um com ícone e descrição</span><br>
+      <span class="st">5. Formulário de orçamento com: nome, email, telefone,</span><br>
+      <span class="st">   tipo de serviço (dropdown) e descrição do projeto</span><br>
+      <span class="st">6. Rodapé com links para Instagram, YouTube e WhatsApp</span><br><br>
+      <span class="st">Design: fundo escuro (#0a0a0a), texto branco, detalhes</span><br>
+      <span class="st">em laranja (#E8590C). Visual cinematográfico e premium.</span><br>
+      <span class="st">100% responsivo (celular, tablet, desktop).</span><br>
+      <span class="st">Animações suaves ao rolar a página com Framer Motion.</span><br>
+      <span class="st">Use Next.js App Router, Tailwind CSS e TypeScript."</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 24 COMO PEDIR BEM ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="ca">
+    <span class="tag aFU d1">A técnica que faz diferença</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Como pedir bem pra IA</h2>
+    <div class="g2 aFU d4" style="margin-top:var(--sm)">
+      <div class="card card-al fc gmd" style="border-left-color:var(--ok)">
+        <span class="tlb" style="color:var(--ok)">Funciona</span>
+        <div class="fc gsm">
+          <p class="tcp">"Crie um cabeçalho escuro com logo à esquerda"</p>
+          <p class="tcp">"Use a paleta de cores do site X como referência"</p>
+          <p class="tcp">"Primeiro faça a tela inicial, depois a galeria"</p>
+          <p class="tcp">"O menu não abre no celular, corrija"</p>
+        </div>
+      </div>
+      <div class="card card-al fc gmd" style="border-left-color:var(--warn)">
+        <span class="tlb" style="color:var(--warn)">Não funciona</span>
+        <div class="fc gsm">
+          <p class="tcp">"Faz um site bonito" — bonito como?</p>
+          <p class="tcp">"Melhora isso" — melhorar o que?</p>
+          <p class="tcp">"Faz tudo de uma vez" — confunde a IA</p>
+          <p class="tcp">Aceitar sem testar no celular</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Prática</span><span class="sp"></span><span>27</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 25 MAOS A OBRA ═══ -->
+<div class="s s-dark" data-sec="Prática">
+  <div class="cc">
+    <h1 class="txl blk aSI d2" style="color:#fff">MÃOS<br>À OBRA</h1>
+    <p class="aFU d5" style="margin-top:var(--lg-s);font-size:var(--body);color:rgba(255,255,255,.45)">Vou compartilhar minha tela agora.</p>
+    <div class="aFU d7" style="margin-top:var(--xl-s);padding:var(--md-s) var(--lg-s);border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)">
+      <p style="font-size:var(--cap);color:rgba(255,255,255,.5);text-align:center">Abram o <strong style="color:var(--accent-l)">Cursor</strong> ou o <strong style="color:var(--accent-l)">Terminal</strong> no computador de vocês.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 26 COMO VER SEU SITE ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="ca">
+    <span class="tag aFU d1">Resultado</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Como ver seu site</h2>
+    <div class="g2 aFU d4" style="margin-top:var(--xl-s)">
+      <div class="card fc gmd">
+        <div class="fr gmd"><div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><h3 class="bld" style="font-size:var(--cap)">Peça para o Claude</h3></div>
+        <p class="tcp">"Rode o site no navegador" — ele executa <strong class="dk mono">npm run dev</strong> e abre automaticamente.</p>
+      </div>
+      <div class="card fc gmd">
+        <div class="fr gmd"><div class="ico ico-d"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M7 7h6M7 10h4"/></svg></div><h3 class="bld" style="font-size:var(--cap)">Ou manualmente</h3></div>
+        <p class="tcp">No terminal, digite <strong class="dk mono">npm run dev</strong> e abra <strong class="dk mono">localhost:3000</strong> no navegador.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Prática</span><span class="sp"></span><span>29</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 27 PUBLICAR ONLINE ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="cc" style="gap:var(--lg-s)">
+    <span class="tag aFU d1">Último passo</span>
+    <h2 class="tlg blk aFU d2">Publicar online (colocar no ar)</h2>
+    <div class="term aFU d4" style="max-width:620px;text-align:left">
+      <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+      <span class="cm"># Peça para o Claude:</span><br>
+      <span class="st">"Publique esse site na Vercel"</span><br><br>
+      <span class="cm"># Vercel = serviço gratuito, feito para Next.js</span><br>
+      <span class="cm"># Ele vai rodar isso automaticamente:</span><br>
+      <span class="pr">$</span> npx vercel<br><br>
+      <span class="cm"># Vai pedir pra criar conta (gratuita) e depois:</span><br>
+      <span class="pr">&#10004;</span> <span style="color:#22C55E">Deployed to playmix.vercel.app</span>
+    </div>
+    <p class="tcp aFU d6">Gratuito. A Vercel é da mesma empresa que criou o Next.js.<br>Endereço personalizado (www.suaempresa.com) é opcional (~R$40/ano).</p>
+  </div>
+  <div class="foot"><span>Prática</span><span class="sp"></span><span>30</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 28 ECOSSISTEMA ═══ -->
+<div class="s" data-sec="Prática">
+  <div class="ca">
+    <span class="tag aFU d1">Bônus</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">Ferramentas que a IA usa junto</h2>
+    <p class="tbd aFU d3" style="margin-top:var(--xs);max-width:650px">O Claude Code se conecta com essas plataformas. Você não precisa entender tudo agora — só saber que existem.</p>
+    <div class="g2 aFU d4" style="margin-top:var(--md-s)">
+      <div class="card fc gsm" style="padding:var(--md-s)">
+        <div class="fr gmd" style="align-items:center">
+          <img src="img/vercel-logo.svg" alt="Vercel" style="width:40px;height:40px;">
+          <div class="fc gxs">
+            <p class="bld dk" style="font-size:var(--cap)">Vercel</p>
+            <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Publica seu site na internet. Gratuito. Da mesma empresa do Next.js.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card fc gsm" style="padding:var(--md-s)">
+        <div class="fr gmd" style="align-items:center">
+          <img src="img/supabase-logo.svg" alt="Supabase" style="width:40px;height:40px;">
+          <div class="fc gxs">
+            <p class="bld dk" style="font-size:var(--cap)">Supabase</p>
+            <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Banco de dados e login de usuários. Guarda as informações do seu site.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card fc gsm" style="padding:var(--md-s)">
+        <div class="fr gmd" style="align-items:center">
+          <img src="img/github-logo.svg" alt="GitHub" style="width:40px;height:40px;">
+          <div class="fc gxs">
+            <p class="bld dk" style="font-size:var(--cap)">GitHub</p>
+            <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Salva o histórico do seu projeto na nuvem. Como um Google Drive para código.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card fc gsm" style="padding:var(--md-s)">
+        <div class="fr gmd" style="align-items:center">
+          <img src="img/cloudflare-logo.svg" alt="Cloudflare" style="width:40px;height:40px;">
+          <div class="fc gxs">
+            <p class="bld dk" style="font-size:var(--cap)">Cloudflare</p>
+            <p class="tcp" style="font-size:clamp(12px,.85vw,14px)">Protege e acelera seu site. Domínio, SSL e segurança.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Prática</span><span class="sp"></span><span>31</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 30 RECAP ═══ -->
+<div class="s" data-sec="Encerramento">
+  <div class="orb orb-p" style="width:600px;height:600px;bottom:-250px;left:-200px"></div>
+  <div class="ca">
+    <span class="tag aFU d1">Recapitulando</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">O que você aprendeu</h2>
+    <div class="g2 aFU d4" style="margin-top:var(--sm)">
+      <div class="card fc gsm">
+        <p class="bld dk">A família de IAs</p>
+        <p class="tcp">Claude, GPT, Gemini — os 3 produtos da Anthropic e onde o Code se encaixa</p>
+      </div>
+      <div class="card fc gsm">
+        <p class="bld dk">Claude Code</p>
+        <p class="tcp">Instalou, rodou o primeiro comando e viu ele criar um projeto inteiro</p>
+      </div>
+      <div class="card fc gsm">
+        <p class="bld dk">Cursor</p>
+        <p class="tcp">O editor visual com IA, os 3 níveis (Tab, Cmd+K, modo autônomo) e como usar com o Code</p>
+      </div>
+      <div class="card fc gsm">
+        <p class="bld dk">Prática</p>
+        <p class="tcp">Construiu um site profissional do zero usando IA e publicou online</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Encerramento</span><span class="sp"></span><span>32</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 29 PROXIMOS PASSOS ═══ -->
+<div class="s" data-sec="Encerramento">
+  <div class="ca">
+    <span class="tag aFU d1">Depois da aula</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--md-s)">Próximos passos</h2>
+    <div class="fc glg aFU d4" style="margin-top:var(--xl-s);max-width:700px">
+      <div class="sr"><span class="sn">-></span><p class="tcp">Refaça o site da aula com a <strong class="dk">sua marca</strong> — melhor exercício possível</p></div>
+      <div class="sr"><span class="sn">-></span><p class="tcp">Peça: <strong class="dk">"analise este projeto"</strong> em qualquer pasta do seu computador</p></div>
+      <div class="sr"><span class="sn">-></span><p class="tcp">Crie uma <strong class="dk">calculadora de orçamento</strong> para seus clientes</p></div>
+      <div class="sr"><span class="sn">-></span><p class="tcp">Documentação: <strong class="dk mono">code.claude.com/docs</strong> · <strong class="dk mono">cursor.com/docs</strong></p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Encerramento</span><span class="sp"></span><span>33</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 30 CLOSING ═══ -->
+<div class="s s-dark" data-sec="">
+  <div class="cms"><div class="cm-k c1"></div><div class="cm-k c2"></div><div class="cm-k c3"></div><div class="cm-k c4"></div></div>
+  <div class="wm aFI d2" style="right:60px;bottom:60px;color:#fff;opacity:.02">30</div>
+  <div class="cc">
+    <span class="tlb aFI d1" style="letter-spacing:.5em;color:rgba(255,255,255,.3)">Maker Pro 2.0</span>
+    <h1 class="txl blk aSI d3" style="margin-top:var(--lg-s);color:#fff">AGORA É<br>COM VOCÊS.</h1>
+    <div class="fr gmd aFU d6" style="margin-top:var(--sm)">
+      <div class="aline aGW d7" style="background:var(--accent-l)"></div>
+      <span class="tlb" style="color:rgba(255,255,255,.25)">PLAYMIX // 2026</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="pb"><div class="pf" id="pf"></div></div>
+<div class="ct" id="ct"></div>
+
+<script>
+(function(){
+  const S=document.querySelectorAll('.s'),t=S.length;let c=0;
+  function go(n){if(n<0||n>=t)return;S[c].classList.remove('on');c=n;S[c].classList.add('on');up()}
+  function up(){document.getElementById('pf').style.width=((c+1)/t*100)+'%';document.getElementById('ct').textContent=String(c+1).padStart(2,'0')+' / '+String(t).padStart(2,'0')}
+  document.addEventListener('keydown',e=>{if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(c+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(c-1)}if(e.key==='Home'){e.preventDefault();go(0)}if(e.key==='End'){e.preventDefault();go(t-1)}if(e.key==='f'||e.key==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}});
+  let tx=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX});document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)d>0?go(c+1):go(c-1)});
+  document.addEventListener('click',e=>{if(e.target.closest('a,button,input,code,.term'))return;e.clientX>window.innerWidth/2?go(c+1):go(c-1)});
+  up()
+})();
+</script>
+</body>
+</html>
