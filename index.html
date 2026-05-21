@@ -398,7 +398,81 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(
   <div class="foot"><span>Claude Code</span><span class="sp"></span><span>14</span><span class="sp"></span><span>PLAYMIX</span></div>
 </div>
 
-<!-- ═══ 15 O QUE ELE CONSEGUE FAZER ═══ -->
+<!-- ═══ 15 COMMIT, PUSH, DEPLOY ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">Como o código chega até a internet</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">Commit, Push e Deploy</h2>
+    <div class="g3 aFU d4" style="margin-top:var(--md-s)">
+      <div class="card fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld" style="font-size:var(--cap)">Commit</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)"><strong class="dk">Salvar uma versão</strong> do seu projeto. Como tirar uma foto do código naquele momento. Você pode voltar atrás se algo der errado.</p>
+      </div>
+      <div class="card fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld" style="font-size:var(--cap)">Push</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)"><strong class="dk">Enviar para a nuvem.</strong> O commit salva no seu computador. O push manda pro GitHub — seguro, acessível de qualquer lugar.</p>
+      </div>
+      <div class="card card-al fc gmd" style="border-top:3px solid var(--accent)">
+        <p class="tmd bld acc" style="font-size:var(--cap)">Deploy</p>
+        <p class="tcp" style="font-size:clamp(13px,1vw,16px)"><strong class="dk">Publicar na internet.</strong> Quando você faz deploy, seu site fica acessível para qualquer pessoa no mundo.</p>
+      </div>
+    </div>
+    <div class="card-w aFU d6" style="margin-top:var(--sm);padding:var(--xs) var(--md-s);border-radius:10px;max-width:650px">
+      <p class="tcp" style="text-align:center;color:var(--accent);font-size:clamp(12px,.9vw,15px)">Commit → Push → Deploy. Você faz no computador, manda pro GitHub, e publica na Vercel.</p>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>15</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 16 GITHUB ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca" style="flex-direction:row;align-items:center;gap:var(--lg-s)">
+    <div class="fc gmd" style="flex:1;min-width:0">
+      <span class="tag aFU d1">Repositório</span>
+      <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)">O que é o <span class="tg">GitHub</span></h2>
+      <p class="tbd aFU d3" style="margin-top:var(--sm);max-width:420px">É onde seu projeto fica guardado na nuvem. Cada projeto é um "repositório". Qualquer pessoa pode acessar (se for público) ou só você (se for privado).</p>
+      <div class="fc gsm aFU d5" style="margin-top:var(--md-s)">
+        <p class="tcp"><strong class="dk">Histórico completo</strong> — todas as versões do seu código</p>
+        <p class="tcp"><strong class="dk">Segurança</strong> — se seu computador quebrar, o código está salvo</p>
+        <p class="tcp"><strong class="dk">Colaboração</strong> — outras pessoas podem contribuir</p>
+      </div>
+    </div>
+    <div class="aFU d6" style="flex:1;min-width:0;max-width:55%">
+      <img src="img/github-repo.png" alt="Repositório no GitHub" style="width:100%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.1)">
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>16</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 17 CLAUDE.MD E MEMORIA ═══ -->
+<div class="s" data-sec="Claude Code">
+  <div class="ca">
+    <span class="tag aFU d1">A memória da IA</span>
+    <h2 class="tlg blk aFU d2" style="margin-top:var(--sm)"><span class="tg">CLAUDE.md</span> e Memória</h2>
+    <p class="tbd aFU d3" style="margin-top:var(--xs);max-width:650px">O Claude Code aprende sobre o seu projeto e lembra entre sessões.</p>
+    <div class="g2 aFU d4" style="margin-top:var(--md-s)">
+      <div class="card fc gmd">
+        <div class="fr gmd"><div class="ico ico-o"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="14" height="14" rx="2"/><path d="M7 7h6M7 10h4M7 13h5"/></svg></div><h3 class="bld" style="font-size:var(--cap)">CLAUDE.md</h3></div>
+        <p class="tcp">Um arquivo de texto que você coloca na pasta do projeto. O Claude lê ele sempre que inicia. Ali você escreve as regras: "use Tailwind", "escreva em português", "o banco é Supabase".</p>
+      </div>
+      <div class="card fc gmd">
+        <div class="fr gmd"><div class="ico ico-d"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg></div><h3 class="bld" style="font-size:var(--cap)">Memória automática</h3></div>
+        <p class="tcp">O Claude salva aprendizados sozinho: comandos de build, bugs que resolveu, decisões que tomou. Na próxima sessão, ele já sabe o que fazer.</p>
+      </div>
+    </div>
+    <div class="term aFU d6" style="margin-top:var(--md-s);max-width:500px;font-size:clamp(11px,.8vw,14px);line-height:1.7">
+      <div class="td"><span class="dr"></span><span class="dy"></span><span class="dg"></span></div>
+      <span class="cm"># Exemplo de CLAUDE.md</span><br>
+      <span class="st">Este projeto é um site para a PLAYMIX.</span><br>
+      <span class="st">Use Next.js, Tailwind e TypeScript.</span><br>
+      <span class="st">O banco de dados é Supabase.</span><br>
+      <span class="st">Escreva tudo em português.</span>
+    </div>
+  </div>
+  <div class="foot"><span>Claude Code</span><span class="sp"></span><span>17</span><span class="sp"></span><span>PLAYMIX</span></div>
+</div>
+
+<!-- ═══ 18 O QUE ELE CONSEGUE FAZER ═══ -->
 <div class="s" data-sec="Claude Code">
   <div class="ca">
     <span class="tag aFU d1">Capacidades — para videomakers</span>
