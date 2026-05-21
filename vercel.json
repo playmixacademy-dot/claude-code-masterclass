@@ -1,0 +1,17 @@
+{
+  "headers": [
+    {
+      "source": "/img/og.png",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "CDN-Cache-Control", "value": "public, max-age=60" }
+      ]
+    },
+    {
+      "source": "/img/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}
